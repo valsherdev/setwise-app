@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+  <title>SetWise</title>
+    <h1>Welcome to SetWise</h1>
+    <h2>Join today:</h2>
+    <form action="/" method="post">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Username">
+        <label>Email</label>
+        <input type="text" name="email" placeholder="Email">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Password">
+
+        <br>
+        <button type="submit">Sign up</button>
+    
+    </form>
+    <label>Already have an account?</label>
+    <form action="/sessions/new" method="get">
+        <input type="submit" value="Login instead">
+    </form>
+{% endblock %}

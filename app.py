@@ -2,6 +2,8 @@ import os
 from flask import Flask, request, render_template, redirect, session
 from lib.database_connection import get_flask_database_connection, DatabaseConnection
 from lib.user_repository import UserRepository
+from lib.workout_repository import WorkoutRepository
+from lib.exercise_repository import ExerciseRepository
 from dotenv import load_dotenv
 from login_required import login_required_decorator
 from flask_bcrypt import Bcrypt
@@ -19,8 +21,17 @@ app.secret_key = os.environ["SECRET_KEY"]
 def dashboard():
     connection = get_flask_database_connection(app)
     user_repo = UserRepository(connection)
-    user = session["user_id"]
-    return render_template("dashboard.html")
+    user = user_repo.find_by_id(session["user_id"])
+    exercise_repo = ExerciseRepository(connection)
+    exercises = exercise_repo.all()
+    return render_template("dashboard.html", user=user, exercises=exercises)
+
+
+@app.route("/dashboard", methods=["POST"])
+def create_workout():
+    connection = get_flask_database_connection(app)
+    workout_repo = WorkoutRepository(connection)
+    workout_details = request.form 
 
 
 

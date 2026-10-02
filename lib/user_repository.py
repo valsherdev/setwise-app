@@ -30,6 +30,17 @@ class UserRepository:
             return False
         return None
 
+
+    def find_by_id(self, user_id):
+        try:
+            user = self._connection.execute(
+            "SELECT * FROM users WHERE id = %s", [user_id]
+            )[0]
+        except IndexError:
+            return None
+        
+        return User(**user)
+    
     
     def find_by_email(self, email):
         try:

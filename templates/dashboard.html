@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
   <title>SetWise</title>
-    <h1>Welcome back</h1>
+  <p>Track. Train. Progress.</p>
+    <h2>Welcome back, {{ user.username }}!</h2>
+
+<nav>
+    <ul>
+        <li><a href="{{ url_for('logout') }}">Logout</a></li>
+    </ul>
+</nav>
+
+<h1>Log your workout</h1>
+
 
 {% endblock %}

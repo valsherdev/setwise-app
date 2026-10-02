@@ -17,6 +17,9 @@ app.secret_key = os.environ["SECRET_KEY"]
 @app.route("/dashboard", methods=["GET"])
 @login_required_decorator
 def dashboard():
+    connection = get_flask_database_connection(app)
+    user_repo = UserRepository(connection)
+    user = session["user_id"]
     return render_template("dashboard.html")
 
 

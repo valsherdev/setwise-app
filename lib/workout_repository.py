@@ -1,4 +1,5 @@
 from lib.workout import Workout
+from datetime import datetime
 
 class WorkoutRepository:
 
@@ -7,17 +8,26 @@ class WorkoutRepository:
 
 
 
-    def create(self, workout):
-        self._connection.execute(
-            "INSERT INTO workouts (user_id, started_at, ended_at, notes) VALUES (%s, %s, %s, %s)",
+    def create(self, workout_data, user_id):
+        if not user_id:
+            return False
+        new_workout = Workout(
+            user_id=user_id,
+            started_at=workout_data.get("started_at", datetime.now()),
+            ended_at=workout_data.get("ended_at"),
+            notes=workout_data.get("notes")
+        )
+        result = self._connection.execute(
+            "INSERT INTO workouts (user_id, started_at, ended_at, notes) VALUES (%s, %s, %s, %s) RETURNING id",
             [
-                workout.user_id,
-                workout.started_at,
-                workout.ended_at,
-                workout.notes
+                new_workout.user_id,
+                new_workout.started_at,
+                new_workout.ended_at,
+                new_workout.notes
                 ]
         )
-        return None
+        new_workout.id = result[0]["id"]
+        return new_workout
 
     
     def find_by_id(self, workout_id):

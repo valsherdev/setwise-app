@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template, redirect, session
+from flask import Flask, request, render_template, redirect, session, flash
 from lib.database_connection import get_flask_database_connection, DatabaseConnection
 from lib.user_repository import UserRepository
 from lib.workout_repository import WorkoutRepository
@@ -28,10 +28,16 @@ def dashboard():
 
 
 @app.route("/dashboard", methods=["POST"])
+@login_required_decorator
 def create_workout():
     connection = get_flask_database_connection(app)
     workout_repo = WorkoutRepository(connection)
     workout_details = request.form 
+    new_workout = workout_repo.create(workout_details, user_id=session["user_id"])
+    if new_workout is False:
+        flash("Please fill in all required fields.")
+        return redirect("/dashboard")
+    
 
 
 

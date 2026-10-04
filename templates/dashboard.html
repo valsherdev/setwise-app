@@ -11,6 +11,11 @@
 </nav>
 
 <h1>Log your workout</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <p class="error">{{ messages[0] }}</p>
+  {% endif %}
+{% endwith %}
 
 
 {% endblock %}

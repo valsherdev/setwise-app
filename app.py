@@ -22,23 +22,36 @@ def dashboard():
     connection = get_flask_database_connection(app)
     user_repo = UserRepository(connection)
     user = user_repo.find_by_id(session["user_id"])
-    exercise_repo = ExerciseRepository(connection)
-    exercises = exercise_repo.all()
-    return render_template("dashboard.html", user=user, exercises=exercises)
+    workout_repo = WorkoutRepository(connection)
+    in_progress = workout_repo.find_in_progress(session["user_id"])
+    return render_template("dashboard.html", user=user, in_progress=in_progress)
 
 
-@app.route("/dashboard", methods=["POST"])
+
+@app.route("/workouts/start", methods=["POST"])
 @login_required_decorator
-def create_workout():
+def start_workout():
+    connection = get_flask_database_connection(app)
+    workout_repo = WorkoutRepository(connection)
+    if workout_repo.find_in_progress(session["user_id"]) is not None:
+        flash("You already have a workout in progress.")
+        return redirect("/dashboard")
+    new_workout = workout_repo.start(user_id=session["user_id"])
+    return redirect(f"/workouts/{new_workout.id}")
+
+
+@app.route("/workouts/log", methods=["POST"])
+@login_required_decorator
+def log_past_workout():
     connection = get_flask_database_connection(app)
     workout_repo = WorkoutRepository(connection)
     workout_details = request.form 
-    new_workout = workout_repo.create(workout_details, user_id=session["user_id"])
+    new_workout = workout_repo.log_past(workout_details, user_id=session["user_id"])
     if new_workout is False:
-        flash("Please fill in all required fields.")
+        flash("Please fill in start and end times.")
         return redirect("/dashboard")
+    return redirect(f"/workouts/{new_workout.id}")
     
-
 
 
 # --- SIGNUP PAGE ---

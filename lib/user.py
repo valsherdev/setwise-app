@@ -5,8 +5,5 @@ class User:
         self.password = password
         self.id = id
 
-    
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-
-    

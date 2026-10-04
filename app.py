@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, render_template, redirect, session, flash
-from lib.database_connection import get_flask_database_connection, DatabaseConnection
+from lib.database_connection import (
+    get_flask_database_connection, DatabaseConnection)
 from lib.user_repository import UserRepository
 from lib.workout_repository import WorkoutRepository
 from lib.exercise_repository import ExerciseRepository
@@ -15,7 +16,6 @@ app = Flask(__name__)
 app.secret_key = os.environ["SECRET_KEY"]
 
 
-
 @app.route("/dashboard", methods=["GET"])
 @login_required_decorator
 def dashboard():
@@ -24,8 +24,8 @@ def dashboard():
     user = user_repo.find_by_id(session["user_id"])
     workout_repo = WorkoutRepository(connection)
     in_progress = workout_repo.find_in_progress(session["user_id"])
-    return render_template("dashboard.html", user=user, in_progress=in_progress)
-
+    return render_template("dashboard.html", user=user,
+                           in_progress=in_progress)
 
 
 @app.route("/workouts/start", methods=["POST"])
@@ -45,13 +45,13 @@ def start_workout():
 def log_past_workout():
     connection = get_flask_database_connection(app)
     workout_repo = WorkoutRepository(connection)
-    workout_details = request.form 
-    new_workout = workout_repo.log_past(workout_details, user_id=session["user_id"])
+    workout_details = request.form
+    new_workout = workout_repo.log_past(
+        workout_details, user_id=session["user_id"])
     if new_workout is False:
         flash("Please fill in start and end times.")
         return redirect("/dashboard")
     return redirect(f"/workouts/{new_workout.id}")
-    
 
 
 # --- SIGNUP PAGE ---
@@ -60,6 +60,7 @@ def signup():
     if session.get("user_id"):
         return redirect("/dashboard")
     return render_template("signup_form.html")
+
 
 @app.route("/", methods=["POST"])
 def create_user():
@@ -77,6 +78,7 @@ def create_user():
 def get_login_form():
     return render_template("login_form.html")
 
+
 @app.route("/sessions", methods=["POST"])
 def create_session():
     login_form_data = request.form
@@ -92,16 +94,15 @@ def create_session():
         return redirect("/sessions/failed")
 
 
-
 # --- FAIL PAGES ---
 @app.route("/sessions/failed", methods=["GET"])
 def login_form_fail():
     return render_template("login_failed.html")
 
+
 @app.route("/sign-up/failed", methods=["GET"])
 def signup_form_fail():
     return render_template("signup_failed.html")
-
 
 
 # --- LOGOUT ---
@@ -110,7 +111,6 @@ def signup_form_fail():
 def logout():
     session["user_id"] = None
     return redirect("/")
-
 
 
 if __name__ == "__main__":

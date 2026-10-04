@@ -1,11 +1,11 @@
 from lib.workout import Workout
 from datetime import datetime
 
+
 class WorkoutRepository:
 
     def __init__(self, connection):
         self._connection = connection
-
 
     def start(self, user_id):
         new_workout = Workout(
@@ -15,12 +15,13 @@ class WorkoutRepository:
             notes=None
         )
         result = self._connection.execute(
-            "INSERT INTO workouts (user_id, started_at, ended_at, notes) VALUES (%s, %s, %s, %s) RETURNING id",
-            [new_workout.user_id, new_workout.started_at, new_workout.ended_at, new_workout.notes]
+            "INSERT INTO workouts (user_id, started_at, ended_at, notes) "
+            "VALUES (%s, %s, %s, %s) RETURNING id",
+            [new_workout.user_id, new_workout.started_at,
+                new_workout.ended_at, new_workout.notes]
         )
         new_workout.id = result[0]["id"]
         return new_workout
-
 
     def log_past(self, workout_data, user_id):
         new_workout = Workout(
@@ -34,45 +35,44 @@ class WorkoutRepository:
             return False
         if new_workout.ended_at < new_workout.started_at:
             return False
-        
+
         result = self._connection.execute(
-            "INSERT INTO workouts (user_id, started_at, ended_at, notes) VALUES (%s, %s, %s, %s) RETURNING id",
+            "INSERT INTO workouts (user_id, started_at, ended_at, notes) "
+            "VALUES (%s, %s, %s, %s) RETURNING id",
             [
                 new_workout.user_id,
                 new_workout.started_at,
                 new_workout.ended_at,
                 new_workout.notes
-                ]
+            ]
         )
         new_workout.id = result[0]["id"]
         return new_workout
 
-    
     def find_by_id(self, workout_id):
         try:
             workout = self._connection.execute(
                 "SELECT * FROM workouts WHERE id = %s", [workout_id]
-                )[0]
+            )[0]
         except IndexError:
             return None
 
         return Workout(**workout)
 
-    
     def find_by_user_id(self, user_id):
         try:
             workout = self._connection.execute(
                 "SELECT * FROM workouts WHERE user_id = %s", [user_id]
-                )[0]
+            )[0]
         except IndexError:
             return None
-         
-        return Workout(**workout)
 
+        return Workout(**workout)
 
     def find_in_progress(self, user_id):
         started_workout = self._connection.execute(
-            "SELECT * FROM workouts WHERE user_id = %s AND ended_at IS NULL", [user_id]
+            "SELECT * FROM workouts WHERE user_id = %s AND ended_at IS NULL", [
+                user_id]
         )[0]
         if not started_workout:
             return None

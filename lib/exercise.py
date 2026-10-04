@@ -4,8 +4,5 @@ class Exercise:
         self.muscle_group = muscle_group
         self.id = id
 
-    
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
-
-    

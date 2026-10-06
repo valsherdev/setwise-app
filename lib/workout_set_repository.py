@@ -30,3 +30,10 @@ class WorkoutSetRepository:
             return None
 
         return WorkoutSet(**workout_set)
+
+    def find_by_workout_id(self, workout_id):
+        rows = self._connection.execute(
+            "SELECT * FROM workout_sets WHERE workout_id = %s ORDER BY exercise_id, set_number", 
+            [workout_id]
+        )
+        return [WorkoutSet(**row) for row in rows]

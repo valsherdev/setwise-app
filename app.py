@@ -5,6 +5,7 @@ from lib.database_connection import (
 from lib.user_repository import UserRepository
 from lib.workout_repository import WorkoutRepository
 from lib.exercise_repository import ExerciseRepository
+from lib.workout_set_repository import WorkoutSetRepository
 from dotenv import load_dotenv
 from login_required import login_required_decorator
 from flask_bcrypt import Bcrypt
@@ -52,6 +53,34 @@ def log_past_workout():
         flash("Please fill in start and end times.")
         return redirect("/dashboard")
     return redirect(f"/workouts/{new_workout.id}")
+
+
+@app.route("/workouts/<workout_id>", methods=["GET"])
+@login_required_decorator
+def get_individual_workout(workout_id):
+    connection = get_flask_database_connection(app)
+    workout_repo = WorkoutRepository(connection)
+    exercise_repo = ExerciseRepository(connection)
+    set_repo = WorkoutSetRepository(connection)
+    workout = workout_repo.find_by_id(workout_id)
+    all_exercises = exercise_repo.all()
+    all_sets = set_repo.find_by_workout_id(workout_id)
+    sets_by_exercise = {}
+    for set in all_sets:
+        sets_by_exercise.setdefault(set.exercise_id, []).append(set)    
+    return render_template("workout_page.html", workout=workout, all_exercises=all_exercises, sets_by_exercise=sets_by_exercise)
+
+
+@app.route("/workouts/<workout_id>/sets", methods=["POST"])
+@login_required_decorator
+def add_set(workout_id):
+    connection = get_flask_database_connection(app)
+    set_repo = WorkoutSetRepository(connection)
+    set_data = request.form
+    new_set = set_repo.create(set_data, workout_id)
+    if new_set is False:
+        flash("Please choose an exercise and enter reps.")
+    return redirect(f"/workouts/{workout_id}")
 
 
 # --- SIGNUP PAGE ---

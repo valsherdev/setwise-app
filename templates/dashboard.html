@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
   <title>SetWise</title>
+  <h1>SetWise</h1>
   <p>Track. Train. Progress.</p>
     <h2>Welcome back, {{ user.username }}!</h2>
 
@@ -27,7 +28,7 @@
       <button type="submit">Start workout</button>
     </form>
 
-    <h2>Log a past workout</h2>
+    <h2>Or log a past workout</h2>
     <form action="/workouts/log" method="post">
       <label>Started at</label>
       <input type="datetime-local" name="started_at" required>

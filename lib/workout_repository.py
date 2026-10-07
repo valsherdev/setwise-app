@@ -70,10 +70,10 @@ class WorkoutRepository:
         return Workout(**workout)
 
     def find_in_progress(self, user_id):
-        started_workout = self._connection.execute(
+        rows = self._connection.execute(
             "SELECT * FROM workouts WHERE user_id = %s AND ended_at IS NULL", [
                 user_id]
-        )[0]
-        if not started_workout:
+        )
+        if not rows:
             return None
-        return Workout(**started_workout)
+        return Workout(**rows[0])

@@ -63,12 +63,26 @@ def get_individual_workout(workout_id):
     exercise_repo = ExerciseRepository(connection)
     set_repo = WorkoutSetRepository(connection)
     workout = workout_repo.find_by_id(workout_id)
+    muscle_groups = exercise_repo.muscle_groups()
+    selected_group = request.args.get("muscle_group")
+    if selected_group:
+        exercises_for_dropdown = exercise_repo.find_by_muscle_group(selected_group)
+    else:
+        exercises_for_dropdown = []
     all_exercises = exercise_repo.all()
     all_sets = set_repo.find_by_workout_id(workout_id)
     sets_by_exercise = {}
     for set in all_sets:
         sets_by_exercise.setdefault(set.exercise_id, []).append(set)    
-    return render_template("workout_page.html", workout=workout, all_exercises=all_exercises, sets_by_exercise=sets_by_exercise)
+    return render_template(
+        "workout_page.html", 
+        workout=workout,
+        muscle_groups=muscle_groups,
+        selected_group=selected_group,
+        exercises_for_dropdown=exercises_for_dropdown, 
+        all_exercises=all_exercises, 
+        sets_by_exercise=sets_by_exercise
+        )
 
 
 @app.route("/workouts/<workout_id>/sets", methods=["POST"])

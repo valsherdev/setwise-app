@@ -7,10 +7,18 @@ class WorkoutSetRepository:
         self._connection = connection
 
     def create(self, set_data, workout_id):
-        new_set = WorkoutSet(workout_id=workout_id, **set_data)
-        if not all([new_set.exercise_id, new_set.reps]):
-            print("Fields cannot be empty")
+        exercise_id = set_data.get("exercise_id")
+        reps = set_data.get("reps")
+        if not exercise_id or not reps:
             return False
+        next_set_number = self._next_set_number(workout_id, exercise_id)
+        new_set = WorkoutSet(
+            workout_id=workout_id,
+            exercise_id=exercise_id,
+            set_number=next_set_number,
+            reps=reps,
+            weight=set_data.get("weight") or None
+        )
         result = self._connection.execute(
             "INSERT INTO workout_sets "
             "(workout_id, exercise_id, set_number, reps, weight) "
@@ -30,3 +38,17 @@ class WorkoutSetRepository:
             return None
 
         return WorkoutSet(**workout_set)
+
+    def find_by_workout_id(self, workout_id):
+        rows = self._connection.execute(
+            "SELECT * FROM workout_sets WHERE workout_id = %s ORDER BY exercise_id, set_number", 
+            [workout_id]
+        )
+        return [WorkoutSet(**row) for row in rows]
+
+    def _next_set_number(self, workout_id, exercise_id):
+        rows = self._connection.execute(
+            "SELECT COUNT(*) AS count FROM workout_sets WHERE workout_id = %s AND exercise_id = %s",
+            [workout_id, exercise_id]
+        )
+        return rows[0]["count"] + 1

@@ -18,19 +18,20 @@ class UserRepository:
             hashed_password = generate_password_hash(
                 new_user.password).decode("utf-8")
 
-            self._connection.execute(
+            result = self._connection.execute(
                 "INSERT INTO USERS (username, email, password) "
-                "VALUES (%s, %s, %s)", [
+                "VALUES (%s, %s, %s) RETURNING id", [
                     new_user.username,
                     new_user.email,
                     hashed_password
                 ]
             )
+            new_user.id = result[0]["id"]
 
         except errors.UniqueViolation:
             print("Username or email already exists, try again")
             return False
-        return None
+        return new_user
 
     def find_by_id(self, user_id):
         try:

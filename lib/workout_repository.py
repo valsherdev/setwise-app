@@ -1,5 +1,5 @@
 from lib.workout import Workout
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class WorkoutRepository:
@@ -10,7 +10,7 @@ class WorkoutRepository:
     def start(self, user_id):
         new_workout = Workout(
             user_id=user_id,
-            started_at=datetime.now(),
+            started_at=datetime.now(timezone.utc),
             ended_at=None,
             notes=None
         )
@@ -77,3 +77,9 @@ class WorkoutRepository:
         if not rows:
             return None
         return Workout(**rows[0])
+
+    def finish(self, workout_id):
+        self._connection.execute(
+            "UPDATE workouts SET ended_at = %s WHERE id = %s",
+            [datetime.now(timezone.utc), workout_id]
+        )

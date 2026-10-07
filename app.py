@@ -97,6 +97,15 @@ def add_set(workout_id):
     return redirect(f"/workouts/{workout_id}")
 
 
+@app.route("/workouts/<workout_id>/finish", methods=["POST"])
+@login_required_decorator
+def finish_workout(workout_id):
+    connection = get_flask_database_connection(app)
+    workout_repo = WorkoutRepository(connection)
+    workout_repo.finish(workout_id)
+    return redirect("/dashboard")
+
+
 # --- SIGNUP PAGE ---
 @app.route("/", methods=["GET"])
 def signup():
@@ -113,6 +122,7 @@ def create_user():
     new_user = user_repo.create(signup_form_data)
     if new_user is False:
         return redirect("/sign-up/failed")
+    session["user_id"] = new_user.id
     return redirect("/dashboard")
 
 

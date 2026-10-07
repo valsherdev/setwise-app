@@ -10,6 +10,34 @@
     </ul>
 </nav>
 
+{% if workout.ended_at %}
+  <p>Logged: {{ workout.started_at.strftime("%d %b %Y, %H:%M") }} – {{ workout.ended_at.strftime("%H:%M") }}</p>
+{% endif %}
+
+{% if not workout.ended_at %}
+  <p>Elapsed: <span id="timer">00:00:00</span></p>
+
+  <form action="/workouts/{{ workout.id }}/finish" method="post">
+    <button type="submit">Finish workout</button>
+  </form>
+
+  <script>
+    const startedAt = new Date("{{ workout.started_at.isoformat() }}");
+
+    function updateTimer() {
+      const now = new Date();
+      const diff = Math.floor((now - startedAt) / 1000);
+      const hours = String(Math.floor(diff / 3600)).padStart(2, "0");
+      const minutes = String(Math.floor((diff % 3600) / 60)).padStart(2, "0");
+      const seconds = String(diff % 60).padStart(2, "0");
+      document.getElementById("timer").textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+  </script>
+{% endif %}
+
 {% with messages = get_flashed_messages() %}
   {% if messages %}
     <p class="error">{{ messages[0] }}</p>

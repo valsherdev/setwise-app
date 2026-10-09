@@ -60,14 +60,13 @@ class WorkoutRepository:
         return Workout(**workout)
 
     def find_by_user_id(self, user_id):
-        try:
-            workout = self._connection.execute(
+        rows = self._connection.execute(
                 "SELECT * FROM workouts WHERE user_id = %s", [user_id]
-            )[0]
-        except IndexError:
+        )
+      
+        if not rows:
             return None
-
-        return Workout(**workout)
+        return [Workout(**row) for row in rows]
 
     def find_in_progress(self, user_id):
         rows = self._connection.execute(

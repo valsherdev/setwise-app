@@ -10,10 +10,11 @@ class UserRepository:
 
     def create(self, user):
         try:
-            new_user = User(**user)
-            if not all([new_user.username, new_user.email, new_user.password]):
+            if not all([user.get("username"), user.get("email"), user.get("password")]):
                 print("Fields cannot be empty")
                 return False
+
+            new_user = User(**user)
 
             hashed_password = generate_password_hash(
                 new_user.password).decode("utf-8")
@@ -29,6 +30,7 @@ class UserRepository:
             new_user.id = result[0]["id"]
 
         except errors.UniqueViolation:
+            self._connection.connection.rollback()
             print("Username or email already exists, try again")
             return False
         return new_user

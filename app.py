@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template, redirect, session, flash
+from flask import Flask, request, render_template, redirect, session, flash, g
 from lib.database_connection import (
     get_flask_database_connection, DatabaseConnection)
 from lib.user_repository import UserRepository
@@ -15,6 +15,12 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ["SECRET_KEY"]
+
+@app.teardown_appcontext
+def close_database_connection(exception=None):
+    connection = g.pop("flask_database_connection", None)
+    if connection is not None:
+        connection.connection.close()
 
 
 @app.route("/dashboard", methods=["GET"])

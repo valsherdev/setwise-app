@@ -38,8 +38,10 @@ class DatabaseConnection:
             cursor.execute(open(sql_filename, "r").read())
             self.connection.commit()
 
-    def execute(self, query, params=[]):
+    def execute(self, query, params=None):
         self._check_connection()
+        if params is None:
+            params = []
         with self.connection.cursor() as cursor:
             cursor.execute(query, params)
             if cursor.description is not None:

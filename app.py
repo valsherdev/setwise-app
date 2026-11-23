@@ -242,7 +242,7 @@ def signup_form_fail():
 @app.route("/logout", methods=["GET"])
 @login_required_decorator
 def logout():
-    session["user_id"] = None
+    session.pop("user_id", None)
     return redirect("/")
 
 

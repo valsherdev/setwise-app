@@ -114,3 +114,25 @@ def test_login_failure_page(web_client):
     response = web_client.get("/sessions/failed")
 
     assert response.status_code == 200
+
+
+# --- AUTHENTICATION TESTS ---
+def test_dashboard_requires_login(web_client):
+    response = web_client.get("/dashboard")
+
+    assert response.status_code == 302
+    assert response.location == "/sessions/new"
+
+
+# --- LOGOUT TESTS ---
+def test_logout(web_client):
+    with web_client.session_transaction() as session:
+        session["user_id"] = 1
+
+    response = web_client.get("/logout")
+
+    assert response.status_code == 302
+    assert response.location == "/"
+
+    with web_client.session_transaction() as session:
+        assert "user_id" not in session

@@ -9,16 +9,16 @@ from xprocess import ProcessStarter
 
 
 @pytest.fixture
-def test_web_address(xprocess):
+def test_web_address(xprocess, db_connection):
     python_executable = sys.executable
     app_file = Path(__file__).resolve().parents[2] / "app.py"
     port = str(random.randint(4000, 4999))
 
     class Starter(ProcessStarter):
         env = {
+            **os.environ,
             "PORT": port,
-            "APP_ENV": "test",
-            **os.environ
+            "APP_ENV": "test"
         }
         pattern = "Debugger PIN"
         args = [python_executable, app_file]
